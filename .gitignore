@@ -1,22 +1,72 @@
-# Source code & build configs (hidden from public repo)
-*.py
-*.spec
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Build artifacts
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# =============================================================================
+# Build artefacts
+# =============================================================================
 build/
 dist/
-__pycache__/
-*.pyc
+*.spec
+*.spec.bak
+*.manifest
 
-# Local virtualenv
-.venv/
-*.env
+# Generated icons (rebuilt from logo.png by build_exe.py)
+stella_video/assets/logo.ico
 
-# Image / media assets — keep them local for building the exe, but don't
-# expose them in the repo. The resources/ folder is intentionally allowed
-# so the README can render a logo.
-*.png
-*.ico
-*.mp4
-!resources/*.png
-!resources/*.gif
+# =============================================================================
+# libmpv DLL (115 MB, exceeds GitHub's 100 MB single-file limit)
+# Run `python setup_libmpv.py` to fetch it after cloning.
+# =============================================================================
+libs/*.dll
+libs/*.7z
+libs/_stage/
+libs/_libmpv_archive.7z
+
+# =============================================================================
+# Editor / IDE
+# =============================================================================
+.idea/
+.vscode/
+*.iml
+*.code-workspace
+.qt_for_python/
+
+# =============================================================================
+# OS junk
+# =============================================================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =============================================================================
+# User-local data
+# =============================================================================
+# QSettings INI on Linux/macOS; on Windows the values go to the registry
+StellaVideo.ini
+*.log
+
+# Test artefacts that show up next to source during development
+00000001.jpg
+00000002.jpg
+mpv-shot*.jpg
+screenshot*.png

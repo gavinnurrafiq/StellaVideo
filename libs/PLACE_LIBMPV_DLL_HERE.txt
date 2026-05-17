@@ -1,0 +1,26 @@
+Stella Video — libmpv DLL location
+====================================
+
+Place the libmpv DLL in THIS folder:
+
+  Required file (Windows 64-bit):
+      libmpv-2.dll       (preferred, current builds)
+      mpv-2.dll          (also accepted)
+      mpv-1.dll          (legacy, also accepted)
+
+Download:
+  https://sourceforge.net/projects/mpv-player-windows/files/libmpv/
+
+  Pick the newest archive named:
+      mpv-dev-x86_64-YYYYMMDD-git-xxxxxxx.7z
+
+  Open it with 7-Zip and extract ONLY `libmpv-2.dll` into this folder.
+  (The full archive includes headers and an import library you do not need.)
+
+After placing the DLL here, run the app again:
+  python run.py
+
+If you also installed python-mpv, this should be all you need.
+
+Linux:   sudo apt install libmpv2          (Debian / Ubuntu)
+macOS:   brew install mpv
