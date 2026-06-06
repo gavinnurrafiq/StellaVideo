@@ -227,6 +227,7 @@ class ControlBar(QWidget):
     volumeChanged = Signal(int)
     muteToggleRequested = Signal()
     speedChanged = Signal(float)
+    canvasOrientationChanged = Signal(str)
     fullscreenToggleRequested = Signal()
     playlistToggleRequested = Signal()
     screenshotRequested = Signal()
@@ -294,6 +295,13 @@ class ControlBar(QWidget):
         self.speed_combo.setFixedWidth(78)
         btn_row.addWidget(self.speed_combo)
 
+        self.canvas_combo = QComboBox()
+        self.canvas_combo.addItem("Horizontal (Landscape - 16:9)", "landscape")
+        self.canvas_combo.addItem("Vertikal (Portrait - 9:16)", "portrait")
+        self.canvas_combo.setToolTip("Canvas orientation")
+        self.canvas_combo.setFixedWidth(210)
+        btn_row.addWidget(self.canvas_combo)
+
         # A-B loop
         self.btn_ab = IconButton("A-B Loop (L)", text="A↔B")
         btn_row.addWidget(self.btn_ab)
@@ -343,6 +351,7 @@ class ControlBar(QWidget):
         self.seek_bar.seeked.connect(self.seekRequested)
         self.volume_slider.valueChanged.connect(self._on_volume_slider)
         self.speed_combo.currentIndexChanged.connect(self._on_speed_index)
+        self.canvas_combo.currentIndexChanged.connect(self._on_canvas_orientation_index)
 
     # ---- updates from player state ----
     def update_position(self, seconds: float) -> None:
@@ -377,6 +386,13 @@ class ControlBar(QWidget):
     def update_chapters(self, chapter_times: list[float]) -> None:
         self.seek_bar.set_chapter_times(chapter_times)
 
+    def update_canvas_orientation(self, orientation: str) -> None:
+        idx = self.canvas_combo.findData(orientation)
+        if idx >= 0:
+            self.canvas_combo.blockSignals(True)
+            self.canvas_combo.setCurrentIndex(idx)
+            self.canvas_combo.blockSignals(False)
+
     def _on_volume_slider(self, value: int) -> None:
         self.volume_label.setText(str(value))
         self.volumeChanged.emit(value)
@@ -385,6 +401,11 @@ class ControlBar(QWidget):
         value = self.speed_combo.itemData(idx)
         if value is not None:
             self.speedChanged.emit(float(value))
+
+    def _on_canvas_orientation_index(self, idx: int) -> None:
+        value = self.canvas_combo.itemData(idx)
+        if value is not None:
+            self.canvasOrientationChanged.emit(str(value))
 
     # ---- frameless window resize hand-off ----
     def mousePressEvent(self, event):

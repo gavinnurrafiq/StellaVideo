@@ -107,6 +107,11 @@ QListWidget::item:hover { background-color: #141414; }
 
 QLabel#PanelTitle { font-weight: 600; font-size: 11pt; color: #e5e7eb; background: transparent; }
 QLabel#PanelCount { color: #9ca3af; padding: 0 6px; background: transparent; }
+QLabel#MutedLabel { color: #9ca3af; background: transparent; }
+QLabel#LiveStatus {
+    color: #e5e7eb; background-color: #050505; border: 1px solid #1f1f1f;
+    border-radius: 6px; padding: 8px 10px;
+}
 
 /* ---- dock widget (playlist panel) ---- */
 QDockWidget {
@@ -130,6 +135,13 @@ QDoubleSpinBox, QSpinBox {
     background-color: #161616; color: #e5e7eb; border: 1px solid #262626;
     border-radius: 4px; padding: 3px 6px;
 }
+QLineEdit, QTextEdit {
+    background-color: #101010; color: #e5e7eb; border: 1px solid #262626;
+    border-radius: 6px; padding: 5px 8px;
+    selection-background-color: #3b82f6;
+}
+QLineEdit:focus, QTextEdit:focus { border-color: #3b82f6; }
+QCheckBox { color: #9ca3af; background: transparent; }
 
 /* ---- scroll bars ---- */
 QScrollBar:vertical { background: #000000; width: 10px; margin: 0; }

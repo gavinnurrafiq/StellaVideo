@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QRect
 from PySide6.QtGui import QPalette, QColor
 from PySide6.QtWidgets import QWidget
 
@@ -106,6 +106,7 @@ class VideoStack(QWidget):
         self.video_frame.hide()
 
         self._video_aspect: float | None = None
+        self._canvas_aspect: float = 16 / 9
         self._video_frame_visible: bool = False
         self._backdrop_visible: bool = True
 
@@ -139,6 +140,12 @@ class VideoStack(QWidget):
                 self._video_frame_visible = True
         self._relayout()
 
+    def set_canvas_aspect(self, aspect: float) -> None:
+        if aspect <= 0:
+            return
+        self._canvas_aspect = aspect
+        self._relayout()
+
     def has_video(self) -> bool:
         return self._video_aspect is not None
 
@@ -148,11 +155,12 @@ class VideoStack(QWidget):
         super().resizeEvent(event)
 
     def _relayout(self) -> None:
-        self.background_frame.setGeometry(self.rect())
+        canvas = self._canvas_rect()
+        self.background_frame.setGeometry(canvas)
         if self._video_aspect is None:
             return
-        w = self.width()
-        h = self.height()
+        w = canvas.width()
+        h = canvas.height()
         if h <= 0 or w <= 0:
             return
         container_ratio = w / h
@@ -162,7 +170,23 @@ class VideoStack(QWidget):
         else:
             vw = w
             vh = int(round(w / self._video_aspect))
-        x = (w - vw) // 2
-        y = (h - vh) // 2
+        x = canvas.x() + (w - vw) // 2
+        y = canvas.y() + (h - vh) // 2
         self.video_frame.setGeometry(x, y, vw, vh)
         self.video_frame.raise_()
+
+    def _canvas_rect(self):
+        w = self.width()
+        h = self.height()
+        if w <= 0 or h <= 0:
+            return self.rect()
+        container_ratio = w / h
+        if container_ratio > self._canvas_aspect:
+            ch = h
+            cw = int(round(h * self._canvas_aspect))
+        else:
+            cw = w
+            ch = int(round(w / self._canvas_aspect))
+        x = (w - cw) // 2
+        y = (h - ch) // 2
+        return QRect(x, y, cw, ch)

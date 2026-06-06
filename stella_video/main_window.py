@@ -21,6 +21,7 @@ from .dialogs import VideoAdjustmentsDialog, SyncDialog, AboutDialog
 from .thumbnail import ThumbnailProvider, ThumbnailOverlay
 from .color_sampler import ColorSampler
 from .preferences import AppSettings, PreferencesDialog
+from .obs_integration import LiveStudioPanel
 from .utils import (
     format_time, is_media, is_subtitle,
     media_file_filter, subtitle_file_filter,
@@ -66,6 +67,9 @@ class MainWindow(QMainWindow):
 
         self.controls = ControlBar(self)
         central_layout.addWidget(self.controls)
+
+        self._canvas_orientation = str(self._settings.value("video/canvas_orientation", "landscape"))
+        self._apply_canvas_orientation(self._canvas_orientation, persist=False, show_osd=False)
 
         self.setCentralWidget(central)
 
@@ -118,6 +122,15 @@ class MainWindow(QMainWindow):
         self.dock_playlist.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_playlist)
         self.dock_playlist.hide()
+
+        # OBS Live Studio dock. Hidden by default so regular playback stays clean.
+        self.live_studio = LiveStudioPanel(self)
+        self.dock_live = QDockWidget("Live Studio", self)
+        self.dock_live.setObjectName("LiveStudioDock")
+        self.dock_live.setWidget(self.live_studio)
+        self.dock_live.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dock_live)
+        self.dock_live.hide()
 
         # Create the player AFTER the video frame is shown (winId requires native window).
         # We delay creation until after show().
@@ -264,6 +277,8 @@ class MainWindow(QMainWindow):
         self.controls.seek_bar.mouseLeft.connect(self._hide_thumbnail_overlay)
         self.controls.seek_bar.draggingChanged.connect(self._on_seek_dragging)
 
+        self._apply_canvas_orientation(self._canvas_orientation, persist=False, show_osd=False)
+
         # Apply player-bound settings now that the Player exists.
         self._apply_settings_to_player()
 
@@ -288,6 +303,7 @@ class MainWindow(QMainWindow):
             self._player.shutdown()
         if self._background_player is not None:
             self._background_player.shutdown()
+        self.live_studio.shutdown()
         super().closeEvent(event)
 
     # ============================================================
@@ -374,6 +390,13 @@ class MainWindow(QMainWindow):
         m_video.addAction("Screenshot", self._action_screenshot).setShortcut("S")
         m_video.addAction("Screenshot to file…", self._action_screenshot_to_file).setShortcut("Shift+S")
 
+        # Live
+        m_live = mb.addMenu("&Live")
+        self._act_live_studio = m_live.addAction("OBS Live Studio", self.toggle_live_studio)
+        self._act_live_studio.setShortcut("Ctrl+Shift+L")
+        m_live.addSeparator()
+        m_live.addAction("OBS Setup Help", self._action_obs_help)
+
         # View
         m_view = mb.addMenu("Vie&w")
         self._act_fullscreen = m_view.addAction("Toggle &Fullscreen", self.toggle_fullscreen)
@@ -406,6 +429,50 @@ class MainWindow(QMainWindow):
 
     def _wire_signals(self) -> None:
         self.controls.seek_bar.hovered.connect(self._on_seek_hover)
+        self.controls.canvasOrientationChanged.connect(self._on_canvas_orientation_changed)
+
+    def _on_canvas_orientation_changed(self, orientation: str) -> None:
+        self._apply_canvas_orientation(orientation)
+
+    def _apply_canvas_orientation(
+        self,
+        orientation: str,
+        *,
+        persist: bool = True,
+        show_osd: bool = True,
+    ) -> None:
+        if orientation not in ("landscape", "portrait"):
+            orientation = "landscape"
+        aspect = 16 / 9 if orientation == "landscape" else 9 / 16
+        label = "Horizontal 16:9" if orientation == "landscape" else "Vertikal 9:16"
+        self._canvas_orientation = orientation
+        self.video_stack.set_canvas_aspect(aspect)
+        self.controls.update_canvas_orientation(orientation)
+        if persist:
+            self._settings.setValue("video/canvas_orientation", orientation)
+        player = getattr(self, "_player", None)
+        if player is not None:
+            player.set_canvas_fit()
+            self._reevaluate_video_dimensions()
+        if show_osd:
+            self.show_osd(f"Canvas: {label}")
+
+    def toggle_live_studio(self) -> None:
+        self.dock_live.setVisible(not self.dock_live.isVisible())
+        if self.dock_live.isVisible():
+            self.dock_live.raise_()
+
+    def _action_obs_help(self) -> None:
+        QMessageBox.information(
+            self,
+            "OBS Live Studio Setup",
+            "1. Open OBS Studio.\n"
+            "2. Go to Tools > WebSocket Server Settings.\n"
+            "3. Enable WebSocket server, keep port 4455, copy/set the password.\n"
+            "4. In OBS, add a Window Capture source and choose Stella Video.\n"
+            "5. Open Live > OBS Live Studio in Stella Video, connect, paste RTMP URL/key, then Start Live.\n\n"
+            "OBS streams to one destination at a time by default. For simultaneous Shopee, TikTok, YouTube, and Instagram, use an OBS Multi-RTMP plugin or a restream service."
+        )
 
     # ============================================================
     # Recent files

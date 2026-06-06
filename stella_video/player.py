@@ -355,6 +355,11 @@ class Player(QObject):
         else:
             self._safe_set("video-aspect-override", ratio)
 
+    def set_canvas_fit(self) -> None:
+        self._safe_set("keepaspect", True)
+        self._safe_set("panscan", 0.0)
+        self._safe_set("video-aspect-override", "-1")
+
     # ---- audio / subtitle tracks ----
     def set_audio_track(self, track_id: int | str) -> None:
         self._safe_set("aid", track_id)

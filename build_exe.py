@@ -58,6 +58,111 @@ def find_libmpv() -> Path | None:
     return None
 
 
+def pyside_collect_args() -> list[str]:
+    """PyInstaller flags for the Qt modules Stella Video actually uses.
+
+    Do not use ``--collect-all PySide6`` here. It bundles the full Qt tree
+    (3D, WebEngine, Quick/QML tooling, designer tools, etc.), which makes the
+    output huge and increases the chance that an unused Qt DLL/plugin fails to
+    load on older Windows 10 systems.
+    """
+    args: list[str] = [
+        "--collect-submodules", "shiboken6",
+    ]
+    for mod in (
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "PySide6.QtWidgets",
+        "shiboken6",
+    ):
+        args += ["--hidden-import", mod]
+    return args
+
+
+CHECK_INSTALL_BAT = r"""@echo off
+chcp 65001 >nul
+setlocal
+cd /d "%~dp0"
+echo === Pemeriksaan instalasi Stella Video ===
+echo.
+echo Folder: %CD%
+echo.
+
+set OK=1
+
+if not exist "Stella Video.exe" (
+  echo [GAGAL] Stella Video.exe tidak ada di folder ini.
+  set OK=0
+)
+
+if not exist "_internal" (
+  echo [GAGAL] Folder _internal tidak ada.
+  echo         Jalankan dari folder lengkap hasil zip — jangan hanya menyalin .exe.
+  set OK=0
+) else (
+  if not exist "_internal\PySide6\Qt6Core.dll" (
+    echo [GAGAL] Qt6Core.dll hilang — instalasi tidak lengkap.
+    echo         Coba ekstrak ulang zip; periksa apakah antivirus memblokir file.
+    set OK=0
+  ) else (
+    echo [OK] Qt6Core.dll
+  )
+  if not exist "_internal\PySide6\plugins\platforms\qwindows.dll" (
+    echo [GAGAL] Plugin Windows Qt ^(qwindows.dll^) hilang.
+    set OK=0
+  ) else (
+    echo [OK] qwindows.dll
+  )
+  if not exist "_internal\PySide6\msvcp140.dll" (
+    echo [GAGAL] msvcp140.dll hilang di bundle.
+    set OK=0
+  ) else (
+    echo [OK] msvcp140.dll di bundle
+  )
+)
+
+echo.
+echo Arsitektur CPU/OS: %PROCESSOR_ARCHITECTURE%
+if /i "%PROCESSOR_ARCHITECTURE%"=="x86" (
+  echo [GAGAL] Windows 32-bit. Stella Video membutuhkan Windows 10/11 64-bit.
+  set OK=0
+)
+
+if %OK%==1 (
+  echo.
+  echo Pemeriksaan dasar LULUS.
+  echo Jika .exe tetap error, install Visual C++ 64-bit lalu restart:
+  echo   https://aka.ms/vcredist/x64
+) else (
+  echo.
+  echo Instalasi bermasalah. Minta zip lengkap dan ekstrak ke folder lokal
+  echo ^(bukan OneDrive "online-only"^).
+)
+echo.
+pause
+"""
+
+
+def write_dist_helpers(dist_dir: Path) -> None:
+    """Drop a one-click checker next to the .exe for end-user troubleshooting."""
+    checker = dist_dir / "Cek Instalasi.bat"
+    checker.write_text(CHECK_INSTALL_BAT, encoding="utf-8")
+    print(f"[dist] wrote {checker.name}")
+
+
+def verify_qt_bundle(dist_dir: Path) -> None:
+    """Warn if Qt6Core.dll did not land in the output folder."""
+    if sys.platform != "win32":
+        return
+    hits = list(dist_dir.rglob("Qt6Core.dll"))
+    if hits:
+        print(f"[verify] Qt6Core.dll -> {hits[0].relative_to(dist_dir)}")
+        return
+    print("[verify] WARNING: Qt6Core.dll not found under dist/. "
+          "The .exe will fail with 'DLL load failed while importing QtCore'. "
+          "Try: pip install -U pyinstaller PySide6, then rebuild.")
+
+
 def build(icon_path: Path) -> None:
     libmpv = find_libmpv()
     if not libmpv:
@@ -100,8 +205,10 @@ def build(icon_path: Path) -> None:
         args += ["--add-binary", b]
 
     # Hidden imports — most are auto-detected, listed defensively.
-    for h in ("mpv",):
+    for h in ("mpv", "websocket"):
         args += ["--hidden-import", h]
+
+    args += pyside_collect_args()
 
     # Strip Qt modules we don't use — PySide6 ships >700 MB of plugins
     # by default (WebEngine, 3D, Quick, etc.). Excluding them drops the
@@ -136,11 +243,15 @@ def build(icon_path: Path) -> None:
         print(f"\n[build] FAILED with exit code {result.returncode}")
         raise SystemExit(result.returncode)
 
-    exe = out_root / DIST_NAME / f"{DIST_NAME}.exe"
+    dist_dir = out_root / DIST_NAME
+    exe = dist_dir / f"{DIST_NAME}.exe"
     if exe.is_file():
+        verify_qt_bundle(dist_dir)
+        write_dist_helpers(dist_dir)
         print()
         print(f"[build] DONE: {exe}")
-        print(f"[build] distribute the folder: {out_root / DIST_NAME}")
+        print(f"[build] distribute the ENTIRE folder (not just the .exe):")
+        print(f"         {dist_dir}")
     else:
         print(f"[build] expected exe at {exe} — not found, check PyInstaller output above")
 
