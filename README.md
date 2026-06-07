@@ -1,219 +1,279 @@
 <p align="center">
-  <img src="resources/logo.png" alt="StellaPlayer Logo" width="200">
+  <img src="resources/logo.png" alt="Stella Video Logo" width="220">
 </p>
 
 # Stella Video
 
-A libmpv-powered desktop media player built with PySide6. Frame-accurate
-seeking, animated UI, scrubbing thumbnails, and a backdrop that adapts
-to whatever is on screen.
+Stella Video is a Windows desktop media player built around libmpv and PySide6.
+It is designed for smooth playback, precise seeking, polished fullscreen viewing,
+and OBS-based live streaming workflows.
 
+## Download
 
----
+Latest release:
+[StellaVideo 1.6.0](https://github.com/gavinnurrafiq/Stella-Video/releases/tag/Release3)
 
-## Features
+Recommended download:
+[StellaVideoSetup-1.6.0.exe](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release3/StellaVideoSetup-1.6.0.exe)
+
+Portable download:
+[Stella.Video.1.6.0.zip](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release3/Stella.Video.1.6.0.zip)
+
+Portable usage:
+1. Download `Stella.Video.1.6.0.zip`.
+2. Extract the full folder.
+3. Open `Stella Video.exe`.
+
+Do not run only the `.exe` after copying it out of the folder. The app needs the
+bundled `_internal` runtime files.
+
+## Windows Support
+
+- Windows 11: supported.
+- Windows 10 1809 or newer: supported.
+- Windows 8/8.1: not supported by the current Qt 6/PySide6 runtime.
+- 64-bit Windows is required.
+
+The release build already includes the required app runtime and libmpv runtime.
+Python is not required when using the installer or portable ZIP.
+
+## Main Features
 
 ### Playback
-- **libmpv backend** — wide codec support, hardware decoding, network streams (mpv handles `http://`, `https://`, `rtsp://`, plus yt-dlp URLs)
-- **Frame-accurate seeking** with `hr-seek=yes` enabled by default
-- **Scrub thumbnail preview** — hover the seek bar to see the frame at any position (rendered via ffmpeg hybrid seek)
-- **A-B loop** to repeat a section
-- **Chapter navigation** with marks on the seek bar
-- **Playback speed** 0.25× – 4×, A-B loop, frame-by-frame stepping (`,` / `.`)
-- **Folder-based next/previous** with natural-numeric ordering (`Episode 02` before `Episode 10`)
 
-### Audio & Subtitles
-- Audio + subtitle track switching from the menu
-- Audio / subtitle delay sync (live, finer than mpv defaults)
-- Drag-and-drop subtitle files
-- Subtitle styling (font, size, color, outline, bold/italic) from Preferences
+- libmpv video backend with wide codec support.
+- Audio and video playback.
+- Frame-accurate seeking.
+- Seekbar preview thumbnails while scrubbing.
+- Play, pause, stop, volume, speed control, next, previous, and folder ordering.
+- A-B loop.
+- Chapter markers and navigation.
+- Screenshot support.
+- Drag and drop media files.
+- Open with Stella Video from Windows file context workflows.
+
+### Video Canvas
+
+- Dynamic canvas orientation from the control bar:
+  - Horizontal / Landscape 16:9.
+  - Vertical / Portrait 9:16.
+- Video keeps its original aspect ratio.
+- Landscape videos inside portrait canvas are letterboxed instead of stretched.
+- Useful for TikTok, Shopee, Instagram, and other vertical live workflows.
 
 ### Interface
-- **Custom frameless title bar** with an animated gradient that reacts to the video — a sunset shot tints it orange, an underwater scene tints it blue
-- **Animated backdrop** when no video is loaded (uses `assets/background.mp4` looped + zoom-to-fill)
-- **Auto-hide UI** during playback (returns on mouse move)
-- **Splash screen** with looping video on launch
-- Black overlay around the playing video for cinema-style viewing comfort
 
-### Convenience
-- Recent files list, drag-and-drop, "Open Folder" auto-queues a directory
-- Playlist dock with drag-to-reorder
-- Screenshots (with or without subtitles)
-- Settings persisted via QSettings
+- Custom frameless UI.
+- Dark/black visual theme.
+- Animated video background when idle.
+- Hybrid splash screen: static logo safety frame plus `loop.mp4` once the video renderer is ready.
+- Auto-hide UI during playback.
+- Fullscreen with `F11`.
+- Playlist dock.
+- OBS Live Studio dock.
 
----
+### Streaming / OBS
 
-## Requirements
+Stella Video does not replace OBS. Stella Video controls OBS through WebSocket,
+while OBS captures, encodes, and sends the live stream.
 
-- **Python 3.11+** (tested with 3.13)
-- **libmpv-2.dll** (Windows) — placed in `stella_video/libs/` or on `PATH`
-- **ffmpeg.exe** on `PATH` — required for the scrub thumbnail preview and reactive title-bar color sampling
-- Windows 10/11 (development target); Linux/macOS should work but are not actively tested
+Supported streaming presets in Stella Video Live Studio:
 
-### Python packages
+- Shopee Live.
+- TikTok Live.
+- YouTube Live.
+- Instagram Live.
+- Custom RTMP / RTMPS.
+
+OBS normally streams to one destination at a time. For simultaneous streaming to
+Shopee, TikTok, YouTube, and Instagram, use an OBS Multi-RTMP plugin or a
+restream service.
+
+## OBS Download
+
+Download OBS Studio from the official OBS website:
+[https://obsproject.com/download](https://obsproject.com/download)
+
+OBS is not bundled inside Stella Video. Keeping OBS separate is better because:
+
+- OBS is a full streaming application with its own updates.
+- Users may already have OBS installed.
+- OBS plugins, scenes, encoders, and platform accounts are managed inside OBS.
+- Bundling OBS would make the Stella Video installer much larger.
+
+OBS Studio 28 and newer includes obs-websocket by default. No separate
+obs-websocket download is needed for normal current OBS installs.
+
+## How To Enable OBS WebSocket
+
+1. Open OBS Studio.
+2. Open `Tools`.
+3. Click `WebSocket Server Settings`.
+4. Enable `Enable WebSocket server`.
+5. Keep the server port as `4455` unless you intentionally changed it.
+6. Enable authentication if you want password protection.
+7. Click `Show Connect Info`.
+8. Copy or note:
+   - Server IP.
+   - Server Port.
+   - Server Password.
+9. Click `Apply` or `OK`.
+
+Recommended Stella Video connection values when OBS is on the same PC:
+
+```text
+Host: 127.0.0.1
+Port: 4455
+Password: use the OBS WebSocket password, or leave blank if OBS authentication is disabled
 ```
-PySide6>=6.6.0
-python-mpv>=1.0.5
-Pillow                # only required by setup_libmpv.py
-py7zr                 # only required by setup_libmpv.py (auto-installed)
+
+## How To Connect Stella Video To OBS
+
+1. Open OBS Studio.
+2. Enable OBS WebSocket.
+3. Open Stella Video.
+4. Open `Live > OBS Live Studio`.
+5. Enter host, port, and password.
+6. Click `Connect`.
+7. If connected, Stella Video will show OBS status and streaming controls.
+
+## How To Capture Stella Video In OBS
+
+1. In OBS, create or select a scene.
+2. Add `Window Capture`.
+3. Select the Stella Video window.
+4. Add an audio source:
+   - Desktop Audio, or
+   - Application Audio Capture, or
+   - your mixer/audio interface.
+5. Play a video in Stella Video.
+6. Confirm the video preview and audio meter are visible in OBS.
+
+## How To Stream With RTMP
+
+1. Open your platform live dashboard:
+   - Shopee Live Center.
+   - TikTok Live Center.
+   - YouTube Studio Live Control Room.
+   - Instagram Live Producer.
+2. Create or prepare a live session.
+3. Copy the RTMP/RTMPS server URL and stream key.
+4. In Stella Video, open `Live > OBS Live Studio`.
+5. Select the platform preset.
+6. Paste the server URL.
+7. Paste the stream key.
+8. Click `Apply RTMP`.
+9. Click `Start Live`.
+
+Stream keys can expire. If streaming fails, copy a fresh key from the platform.
+
+## Vertical Live Workflow
+
+For TikTok, Shopee, Instagram, or other vertical formats:
+
+1. In Stella Video, choose `Vertikal (Portrait - 9:16)` from the canvas dropdown.
+2. In OBS, set your canvas/output layout for the live platform.
+3. Capture Stella Video with `Window Capture`.
+4. Fit or crop the captured source inside OBS as needed.
+5. Use Stella Video Live Studio to apply the platform RTMP settings and start/stop the OBS stream.
+
+## Included Help File
+
+The release folder includes:
+
+```text
+OBS_WEBSOCKET_GUIDE.txt
 ```
 
----
+Open that file for a step-by-step OBS WebSocket setup guide and troubleshooting
+checklist.
 
-## Quick Start
+## Troubleshooting
 
-### Run from source
+### Stella Video cannot connect to OBS
 
-```powershell
-git clone https://github.com/USER/Stella-Video.git
-cd Stella-Video
+Check:
 
-# Recommended: virtualenv
-python -m venv .venv
-.venv\Scripts\activate
+- OBS is open.
+- OBS WebSocket server is enabled.
+- Host is `127.0.0.1`.
+- Port is `4455`, unless changed in OBS.
+- Password matches OBS exactly.
+- Windows Firewall is not blocking OBS.
 
-pip install -r requirements.txt
+### OBS connects but does not show Stella Video
 
-# Download libmpv-2.dll automatically (one-time, ~30 MB)
-python setup_libmpv.py
+Check:
 
-python run.py
-```
+- OBS has a `Window Capture` source.
+- The source is capturing the Stella Video window.
+- The source is visible in the active OBS scene.
+- Stella Video is not minimized.
 
-> **Note:** `libs/libmpv-2.dll` is not in git (115 MB, over GitHub's
-> file-size limit). The `setup_libmpv.py` script downloads it from
-> the official SourceForge build.
+### Stream starts but audio is missing
 
-### Open a file
-- Drag a video onto the window
-- Or `File → Open File…` (`Ctrl+O`)
-- Or `python run.py "path\to\video.mp4"`
+Check:
 
----
+- OBS has the correct audio capture source.
+- The OBS audio meter moves while Stella Video plays.
+- OBS streaming track/audio settings are enabled.
+
+### TikTok, Shopee, or Instagram RTMP does not work
+
+Check:
+
+- Your account has live/RTMP access.
+- The live session was created before starting the stream.
+- The RTMP server URL is complete.
+- The stream key is current and not expired.
 
 ## Keyboard Shortcuts
 
 | Action | Shortcut |
 |---|---|
 | Play / Pause | `Space` |
-| Seek ±5s | `←` / `→` |
-| Seek ±30s | `Shift+←` / `Shift+→` |
-| Seek ±60s | `Ctrl+←` / `Ctrl+→` |
-| Speed −/+ | `[` / `]` |
+| Seek 5 seconds | `Left` / `Right` |
+| Seek 30 seconds | `Shift+Left` / `Shift+Right` |
+| Seek 60 seconds | `Ctrl+Left` / `Ctrl+Right` |
+| Speed down / up | `[` / `]` |
 | Reset speed | `Backspace` |
-| Volume +/− | `↑` / `↓` |
+| Volume up / down | `Up` / `Down` |
 | Mute | `M` |
-| Toggle subtitles | `V` |
-| Subtitle delay −/+ | `Z` / `X` |
-| A-B loop set / clear | `L` / `Shift+L` |
-| Previous / Next chapter | `PgUp` / `PgDown` |
-| Fullscreen | `F11` (or double-click) |
+| A-B loop | `L` |
+| Clear A-B loop | `Shift+L` |
+| Previous / Next file or chapter | `PgUp` / `PgDown` |
+| Fullscreen | `F11` |
 | Toggle playlist | `Ctrl+L` |
-| Screenshot | `S` (or `Shift+S` to save-as) |
-| Video adjustments | `Ctrl+E` |
-| Open file / URL / folder | `Ctrl+O` / `Ctrl+U` / `Ctrl+Shift+O` |
-| Add subtitle file | `Ctrl+T` |
+| OBS Live Studio | `Ctrl+Shift+L` |
+| Screenshot | `S` |
+| Open file | `Ctrl+O` |
+| Open URL | `Ctrl+U` |
+| Open folder | `Ctrl+Shift+O` |
+| Add subtitle | `Ctrl+T` |
 | Preferences | `Ctrl+,` |
-| Resize to video | `Ctrl+R` |
-| Always on top | `Ctrl+Shift+T` |
-| Show shortcuts list | `F1` |
 
----
+## Notes For Microsoft Store / Windows Trust
 
-## Project Layout
-
-```
-Stella Video/
-├── libs/                          libmpv-2.dll lives here
-├── stella_video/
-│   ├── assets/
-│   │   ├── background.mp4         animated welcome backdrop
-│   │   ├── loop.mp4               splash screen loop
-│   │   ├── logo.png               app icon
-│   │   └── icons/                 playback control icons
-│   ├── app.py                     QApplication + main()
-│   ├── main_window.py             QMainWindow, menus, layout
-│   ├── player.py                  libmpv wrapper with Qt signals
-│   ├── video_widget.py            native widget hosting mpv output
-│   ├── video_stack.py             foreground video + backdrop stack
-│   ├── controls.py                seek bar, play controls, volume
-│   ├── playlist.py                playlist dock panel
-│   ├── thumbnail.py               ffmpeg-based scrub preview
-│   ├── color_sampler.py           frame averaging for reactive title bar
-│   ├── custom_title_bar.py        frameless title bar with animated gradient
-│   ├── splash.py                  startup splash with looping video
-│   ├── preferences.py             AppSettings + PreferencesDialog
-│   ├── dialogs.py                 video adjust / sync / about
-│   ├── styles.py                  dark theme QSS
-│   ├── utils.py                   time format, file filters
-│   └── __init__.py
-├── requirements.txt
-├── run.py                         entry point
-├── setup_libmpv.py                auto-download libmpv-2.dll
-└── build_exe.py                   PyInstaller build script
-```
-
----
-
-## Building a Standalone .exe
-
-```powershell
-pip install pyinstaller pillow
-python build_exe.py
-```
-
-Output: `dist/Stella Video/Stella Video.exe` (along with required DLLs and assets).
-
-To distribute, zip the entire `dist/Stella Video/` folder. The user does **not** need Python or any DLL installed — but should still install **ffmpeg** separately for thumbnail previews to work.
-
----
-
-## Architecture Notes
-
-- **mpv embedding** — `VideoFrame.winId()` is passed to mpv via the `wid` option. mpv renders into that native window via its D3D11 swapchain.
-- **Why two mpv instances** — one for the user's video (the main `Player` class), one for the looping idle backdrop (`BackgroundPlayer`). They run independently.
-- **Why ffmpeg, not mpv, for thumbnails** — `screenshot-raw` requires an active video output. Spawning a short-lived ffmpeg process per scrub gives reliable frame extraction without VO complications.
-- **UI bars outside the mpv widget** — menu bar, control bar, status bar all live in QMainWindow slots (not inside the mpv-painted area), so mpv's destructive swapchain repaint can never erase them.
-- **Reactive title bar** — every 1.5 s the `ColorSampler` spawns ffmpeg to extract a 32×32 frame at the current playback position, averages the pixels, and tweens the title bar's gradient base toward that color.
-
----
+The current public build is an offline installer and portable ZIP. For Microsoft
+Store or stronger Windows SmartScreen trust, the installer and executable should
+be signed with a trusted code-signing certificate.
 
 ## License
 
-**PolyForm Noncommercial License 1.0.0** — see [LICENSE](LICENSE).
-
-You may use, copy, modify, and redistribute Stella Video freely for
-**non-commercial** purposes: personal use, research, education,
-hobby projects, religious/charitable/government use, fair use under
-applicable law.
-
-You **may not** use it for any commercial purpose without a separate
-license from the author. "Commercial" includes selling the software,
-selling a service that incorporates it, bundling it with a paid product,
-or using it in revenue-generating internal operations of a for-profit
-business.
+Stella Video is released under the PolyForm Noncommercial License 1.0.0.
 
 Third-party components keep their own licenses:
 
-- libmpv — LGPL 2.1+
-- ffmpeg — LGPL or GPL depending on build options
-- PySide6 — LGPL 3 (with a commercial option from Qt Company)
-
----
-
-## Contributing
-
-Pull requests welcome. By submitting a PR you agree to license your
-contribution under the same PolyForm Noncommercial License as the rest
-of the project.
-
-If you want a commercial license, open an issue.
-
----
+- libmpv.
+- mpv.
+- PySide6 / Qt for Python.
+- FFmpeg where used for preview generation.
+- OBS Studio if installed separately by the user.
 
 ## Credits
 
-- [mpv](https://mpv.io/) — the video engine
-- [python-mpv](https://github.com/jaseg/python-mpv) — Python bindings
-- [PySide6](https://doc.qt.io/qtforpython-6/) — Qt for Python
-- [ffmpeg](https://ffmpeg.org/) — frame extraction for thumbnails
+- [mpv](https://mpv.io/)
+- [python-mpv](https://github.com/jaseg/python-mpv)
+- [PySide6](https://doc.qt.io/qtforpython-6/)
+- [FFmpeg](https://ffmpeg.org/)
+- [OBS Studio](https://obsproject.com/)
