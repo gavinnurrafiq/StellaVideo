@@ -1,0 +1,133 @@
+STELLA VIDEO - OBS WEBSOCKET GUIDE
+
+This file explains how to make OBS Studio work with Stella Video Live Studio.
+
+
+1. REQUIREMENTS
+
+- OBS Studio 28 or newer is recommended.
+- OBS 28+ includes obs-websocket by default.
+- Stella Video and OBS should run on the same Windows PC for the easiest setup.
+- Default OBS WebSocket port: 4455.
+- Download OBS Studio from the official website:
+  https://obsproject.com/download
+
+
+2. INSTALL OBS STUDIO
+
+1. Open https://obsproject.com/download.
+2. Download the Windows installer.
+3. Run the installer.
+4. Open OBS Studio after installation.
+
+
+3. ENABLE OBS WEBSOCKET
+
+1. Open OBS Studio.
+2. Open Tools.
+3. Click WebSocket Server Settings.
+4. Enable "Enable WebSocket server".
+5. Keep Server Port as 4455 unless you have a reason to change it.
+6. Enable authentication if you want password protection.
+7. Click Show Connect Info.
+8. Copy or note:
+   - Server IP
+   - Server Port
+   - Server Password
+9. Click Apply or OK.
+
+
+4. CONNECT STELLA VIDEO TO OBS
+
+1. Open Stella Video.
+2. Open Live > OBS Live Studio.
+3. In OBS WebSocket:
+   - Host: 127.0.0.1
+   - Port: 4455
+   - Password: use the password from OBS, or leave blank if OBS authentication is disabled.
+4. Click Connect.
+5. If it works, the status will show that Stella Video is connected to OBS.
+
+
+5. SETUP OBS CAPTURE
+
+Stella Video controls OBS streaming, but OBS still captures and encodes the video.
+
+1. In OBS, create or select a Scene.
+2. Add a Window Capture source.
+3. Choose Stella Video as the captured window.
+4. Add an Audio Output Capture source if you want desktop/app audio in the stream.
+5. Make sure the video and audio meters move in OBS before going live.
+
+
+6. SET STREAM DESTINATION
+
+1. Open the live platform dashboard:
+   - Shopee Live Center
+   - TikTok Live Center
+   - YouTube Studio Live Control Room
+   - Instagram Live Producer
+2. Copy the RTMP/RTMPS Server URL and Stream Key.
+3. In Stella Video > Live > OBS Live Studio:
+   - Select the platform.
+   - Paste Server URL.
+   - Paste Stream Key.
+4. Click Apply RTMP.
+5. Click Start Live.
+
+
+7. IMPORTANT NOTES
+
+- OBS normally streams to one destination at a time.
+- To stream to Shopee, TikTok, YouTube, and Instagram at the same time, use:
+  - OBS Multi-RTMP plugin, or
+  - a restream service.
+- TikTok, Shopee, and Instagram may require account approval or live access before RTMP keys appear.
+- Stream keys can expire. If Start Live fails, copy a fresh stream key from the platform.
+
+
+8. TROUBLESHOOTING
+
+Problem: Stella Video cannot connect to OBS.
+
+Check:
+- OBS is open.
+- Tools > WebSocket Server Settings > Enable WebSocket server is checked.
+- Host is 127.0.0.1.
+- Port matches OBS, usually 4455.
+- Password matches OBS exactly.
+- Windows Firewall is not blocking OBS.
+
+
+Problem: OBS connects, but stream does not show Stella Video.
+
+Check:
+- OBS has a Window Capture source.
+- The source is capturing Stella Video, not another window.
+- The source is visible in OBS.
+- Stella Video is not minimized.
+
+
+Problem: Stream starts, but audio is missing.
+
+Check:
+- OBS has Audio Output Capture or the correct app/desktop audio source.
+- OBS audio meter moves while Stella Video plays.
+- OBS track/audio settings are enabled for streaming.
+
+
+Problem: YouTube works, but TikTok/Shopee/Instagram fails.
+
+Check:
+- The account has live/RTMP access.
+- The RTMP server URL is complete.
+- The stream key is current and not expired.
+- Platform live session is created before starting OBS stream.
+
+
+9. REFERENCES
+
+- obs-websocket project:
+  https://github.com/obsproject/obs-websocket
+- OBS Studio:
+  https://obsproject.com/download

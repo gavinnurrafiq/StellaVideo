@@ -16,11 +16,22 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QProcess, QTimer, Qt, QPoint, QSize, Signal
-from PySide6.QtGui import (
-    QImage, QPixmap, QPainter, QColor, QFont, QGuiApplication
+from .qt import (
+    QColor,
+    QFont,
+    QImage,
+    QObject,
+    QPainter,
+    QPixmap,
+    QPoint,
+    QProcess,
+    QSize,
+    QTimer,
+    QWidget,
+    Qt,
+    Signal,
+    screen_at,
 )
-from PySide6.QtWidgets import QWidget
 
 from .utils import format_time
 
@@ -246,7 +257,7 @@ class ThumbnailOverlay(QWidget):
         h = self.height()
         x = global_x - w // 2
         y = anchor_y_top - h - 8
-        screen = QGuiApplication.screenAt(QPoint(global_x, anchor_y_top))
+        screen = screen_at(QPoint(global_x, anchor_y_top))
         if screen:
             geo = screen.availableGeometry()
             x = max(geo.left() + 4, min(x, geo.right() - w - 4))

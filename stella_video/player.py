@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any, Callable
 
-from PySide6.QtCore import QObject, Signal
+from .qt import QObject, Signal
 
 
 def _candidate_dll_dirs() -> list[Path]:

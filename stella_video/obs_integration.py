@@ -10,11 +10,69 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 import websocket  # websocket-client
-from PySide6.QtCore import QObject, QSettings, Qt, QTimer, Signal
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
-    QPushButton, QComboBox, QTextEdit, QGroupBox, QCheckBox, QMessageBox,
+
+from .qt import (
+    QCheckBox,
+    QComboBox,
+    QDesktopServices,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QObject,
+    QPushButton,
+    QSettings,
+    QTextEdit,
+    QTimer,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    Signal,
+    qt_exec,
 )
+
+
+OBS_DOWNLOAD_URL = "https://obsproject.com/download"
+
+OBS_SETUP_GUIDE = (
+    "Install OBS Studio\n"
+    f"1. Open {OBS_DOWNLOAD_URL}\n"
+    "2. Download the Windows installer.\n"
+    "3. Install OBS Studio, then open it.\n\n"
+    "Enable OBS WebSocket\n"
+    "1. In OBS, open Tools > WebSocket Server Settings.\n"
+    "2. Enable the WebSocket server.\n"
+    "3. Keep the port as 4455 unless you changed it manually.\n"
+    "4. Enable authentication if you want a password, then copy the password.\n\n"
+    "Capture Stella Video\n"
+    "1. In OBS, create or select a Scene.\n"
+    "2. Add a Window Capture source and choose the Stella Video window.\n"
+    "3. Add Desktop Audio, Application Audio Capture, or another audio source.\n\n"
+    "Go live from Stella Video\n"
+    "1. Open Live > OBS Live Studio.\n"
+    "2. Use Host 127.0.0.1 and Port 4455.\n"
+    "3. Paste the OBS WebSocket password if authentication is enabled.\n"
+    "4. Click Connect.\n"
+    "5. Copy the RTMP Server URL and Stream Key from Shopee, TikTok, YouTube, Instagram, or another platform.\n"
+    "6. Paste them in Stella Video, click Apply RTMP, then Start Live."
+)
+
+
+def show_obs_setup_help(parent: QWidget | None = None) -> None:
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Information)
+    box.setWindowTitle("OBS Install and Setup")
+    box.setText("Install and use OBS Studio with Stella Video.")
+    box.setInformativeText(OBS_SETUP_GUIDE)
+    box.setDetailedText(f"Official OBS website:\n{OBS_DOWNLOAD_URL}")
+    open_btn = box.addButton("Open OBS Website", QMessageBox.ActionRole)
+    box.addButton(QMessageBox.Close)
+    qt_exec(box)
+    if box.clickedButton() is open_btn:
+        QDesktopServices.openUrl(QUrl(OBS_DOWNLOAD_URL))
 
 
 @dataclass(frozen=True)
@@ -322,6 +380,9 @@ class LiveStudioPanel(QWidget):
             "4. OBS can stream to one destination at a time. For simultaneous Shopee/TikTok/YouTube/Instagram, use an OBS Multi-RTMP plugin or a restream service."
         )
         capture_layout.addWidget(self.capture_note)
+        self.obs_help_btn = QPushButton("OBS Install Guide")
+        self.obs_help_btn.clicked.connect(lambda: show_obs_setup_help(self))
+        capture_layout.addWidget(self.obs_help_btn)
         root.addWidget(capture_box)
         root.addStretch(1)
 

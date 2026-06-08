@@ -10,9 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal, QRect
-from PySide6.QtGui import QPalette, QColor
-from PySide6.QtWidgets import QWidget
+from .qt import QColor, QPalette, QRect, Qt, Signal, QWidget
 
 from .video_widget import VideoFrame
 from .player import _setup_libmpv_search_path

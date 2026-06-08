@@ -3,14 +3,33 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal, QSize, QTimer, QRectF
-from PySide6.QtGui import (
-    QMouseEvent, QPainter, QColor, QPen, QIcon, QPixmap, QImage, QTransform,
-    QLinearGradient, QPainterPath
-)
-from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSlider, QLabel,
-    QComboBox, QToolButton, QSizePolicy
+from .qt import (
+    QColor,
+    QComboBox,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QLabel,
+    QLinearGradient,
+    QMouseEvent,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPixmap,
+    QPushButton,
+    QRectF,
+    QSize,
+    QSizePolicy,
+    QSlider,
+    QTimer,
+    QToolButton,
+    QTransform,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    Signal,
+    event_global_x,
+    event_position_x,
 )
 
 from .utils import format_time
@@ -93,15 +112,17 @@ class SeekBar(QSlider):
         if e.button() == Qt.LeftButton and self._duration > 0:
             self._dragging = True
             self.draggingChanged.emit(True)
-            self._set_from_x(e.position().x())
-            self.hovered.emit(self._x_to_seconds(e.position().x()), int(e.globalPosition().x()))
+            x = event_position_x(e)
+            self._set_from_x(x)
+            self.hovered.emit(self._x_to_seconds(x), event_global_x(e))
         super().mousePressEvent(e)
 
     def mouseMoveEvent(self, e: QMouseEvent) -> None:
         if self._duration > 0:
-            self.hovered.emit(self._x_to_seconds(e.position().x()), int(e.globalPosition().x()))
+            x = event_position_x(e)
+            self.hovered.emit(self._x_to_seconds(x), event_global_x(e))
             if self._dragging:
-                self._set_from_x(e.position().x())
+                self._set_from_x(x)
         super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e: QMouseEvent) -> None:

@@ -10,22 +10,25 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QRectF, QSize, QTimer, Qt, Signal
-from PySide6.QtGui import (
+from .qt import (
+    QApplication,
     QColor,
     QFont,
+    QLabel,
+    QObject,
     QPaintEvent,
     QPainter,
     QPainterPath,
     QPixmap,
+    QRectF,
     QRegion,
-)
-from PySide6.QtWidgets import (
-    QApplication,
-    QLabel,
+    QSize,
     QStackedLayout,
+    QTimer,
     QVBoxLayout,
     QWidget,
+    Qt,
+    Signal,
 )
 
 from . import __app_name__, __version__

@@ -3,11 +3,22 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
-    QPushButton, QLabel, QAbstractItemView, QMenu
+from .qt import (
+    QAction,
+    QApplication,
+    QAbstractItemView,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QKeySequence,
+    QMenu,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    Signal,
+    qt_exec,
 )
 
 
@@ -147,14 +158,13 @@ class PlaylistPanel(QWidget):
         remove_act = menu.addAction("Remove")
         menu.addSeparator()
         copy_path_act = menu.addAction("Copy path")
-        action = menu.exec(self.list_widget.mapToGlobal(pos))
+        action = qt_exec(menu, self.list_widget.mapToGlobal(pos))
         if action == play_act:
             self.playRequested.emit(item.data(Qt.UserRole))
         elif action == remove_act:
             self.list_widget.takeItem(self.list_widget.row(item))
             self._update_count()
         elif action == copy_path_act:
-            from PySide6.QtWidgets import QApplication
             QApplication.clipboard().setText(item.data(Qt.UserRole))
 
     def _move_selected(self, delta: int) -> None:

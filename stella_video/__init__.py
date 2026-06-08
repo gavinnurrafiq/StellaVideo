@@ -1,4 +1,4 @@
-"""Stella Video — a libmpv-powered media player built with PySide6."""
+"""Stella Video — a libmpv-powered media player built with Qt."""
 
-__version__ = "1.6.0"
+__version__ = "1.6.1"
 __app_name__ = "Stella Video"

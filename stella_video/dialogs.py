@@ -1,10 +1,19 @@
 """Dialogs — video adjustments, sub/audio sync, about."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QSlider, QLabel,
-    QPushButton, QDoubleSpinBox, QDialogButtonBox, QGroupBox
+from .qt import (
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    Qt,
+    Signal,
 )
 
 from . import __app_name__, __version__
@@ -137,7 +146,7 @@ class AboutDialog(QDialog):
         title.setTextFormat(Qt.RichText)
         layout.addWidget(title)
         layout.addWidget(QLabel(f"Version {__version__}"))
-        layout.addWidget(QLabel("A libmpv-powered media player built with PySide6."))
+        layout.addWidget(QLabel("A libmpv-powered media player built with Qt."))
         layout.addWidget(QLabel("Frame-accurate seeking enabled by default."))
         layout.addStretch(1)
         bb = QDialogButtonBox(QDialogButtonBox.Close)

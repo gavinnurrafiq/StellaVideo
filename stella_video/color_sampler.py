@@ -12,8 +12,7 @@ import shutil
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import QObject, QProcess, QTimer, Signal
-from PySide6.QtGui import QColor, QImage
+from .qt import QColor, QImage, QObject, QProcess, QTimer, Signal
 
 
 def find_ffmpeg() -> str | None:

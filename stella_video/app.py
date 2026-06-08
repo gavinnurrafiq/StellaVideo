@@ -18,11 +18,14 @@ def _guard_supported_windows() -> None:
         return
     if version.major == 10 and version.build >= 17763:
         return
+    binding = _preferred_qt_binding()
+    if version.major == 10 and version.build >= 10586 and binding == "PySide2":
+        return
 
     message = (
         "Stella Video membutuhkan Windows 10 1809 (build 17763) atau lebih baru.\n\n"
-        "Windows 8/8.1 tidak didukung oleh Qt 6/PySide6, sehingga aplikasi "
-        "bisa gagal dengan pesan seperti PySide6.dll tidak ditemukan."
+        "Untuk Windows 10 1511 (build 10586), gunakan build legacy Stella Video "
+        "yang dibuat dengan PySide2/Qt5."
     )
     try:
         import ctypes
@@ -32,20 +35,36 @@ def _guard_supported_windows() -> None:
         raise SystemExit(1)
 
 
+def _preferred_qt_binding() -> str | None:
+    preferred = os.environ.get("STELLA_QT_BINDING", "").strip()
+    candidates = []
+    if preferred:
+        candidates.append({"pyside6": "PySide6", "pyside2": "PySide2"}.get(
+            preferred.lower(),
+            preferred,
+        ))
+    candidates.extend(["PySide6", "PySide2"])
+    for name in dict.fromkeys(candidates):
+        if importlib.util.find_spec(name):
+            return name
+    return None
+
+
 def _bootstrap_qt_runtime_paths() -> None:
     """Make Qt plugin discovery deterministic in frozen builds.
 
-    On some Windows 10 machines, Qt can find PySide6 itself but fail to locate
+    On some Windows 10 machines, Qt can find PySide itself but fail to locate
     the platform plugin (qwindows.dll). That often shows up to users as a
-    vague PySide6/Qt DLL error. Set the plugin path before importing PySide6.
+    vague PySide/Qt DLL error. Set the plugin path before importing Qt.
     """
     candidates: list[Path] = []
+    binding = _preferred_qt_binding() or "PySide6"
 
     frozen_root = getattr(sys, "_MEIPASS", None)
     if frozen_root:
-        candidates.append(Path(frozen_root) / "PySide6" / "plugins")
+        candidates.append(Path(frozen_root) / binding / "plugins")
 
-    spec = importlib.util.find_spec("PySide6")
+    spec = importlib.util.find_spec(binding)
     if spec and spec.submodule_search_locations:
         candidates.append(Path(next(iter(spec.submodule_search_locations))) / "plugins")
 
@@ -61,9 +80,7 @@ def _bootstrap_qt_runtime_paths() -> None:
 _guard_supported_windows()
 _bootstrap_qt_runtime_paths()
 
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QGuiApplication, QIcon
-from PySide6.QtWidgets import QApplication
+from .qt import QApplication, QGuiApplication, QIcon, QT_MAJOR, Qt, QTimer, qt_exec
 
 from . import __app_name__, __version__
 from .main_window import MainWindow
@@ -91,6 +108,10 @@ def _load_app_icon() -> QIcon:
 def main(argv: list[str] | None = None) -> int:
     _fix_locale_for_mpv()
     argv = list(argv or sys.argv)
+
+    if QT_MAJOR < 6:
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
     QGuiApplication.setApplicationDisplayName(__app_name__)
     QApplication.setApplicationName(__app_name__)
@@ -131,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
 
     QTimer.singleShot(0, _post_show)
 
-    return app.exec()
+    return qt_exec(app)
 
 
 if __name__ == "__main__":

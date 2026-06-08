@@ -1,6 +1,7 @@
 # Stella Video
 
-A libmpv-powered desktop media player built with PySide6. Frame-accurate
+A libmpv-powered desktop media player built with Qt. The modern build uses
+PySide6/Qt6, while the Windows 10 1511 legacy build uses PySide2/Qt5. Frame-accurate
 seeking, animated UI, scrubbing thumbnails, and a backdrop that adapts
 to whatever is on screen.
 
@@ -42,17 +43,17 @@ to whatever is on screen.
 
 ## Requirements
 
-- **Python 3.11+** (tested with 3.13)
-- **libmpv-2.dll** (Windows) — placed in `stella_video/libs/` or on `PATH`
+- **Python 3.10+** for the modern PySide6 build
+- **Python 3.9** for the Windows 10 1511 PySide2 legacy build
+- **libmpv DLL** (Windows) — placed in `libs/` for modern builds or `libs/win1511/` for legacy builds
 - **ffmpeg.exe** on `PATH` — required for the scrub thumbnail preview and reactive title-bar color sampling
-- Windows 10/11 (development target); Linux/macOS should work but are not actively tested
+- Modern build: Windows 10 1809+ / Windows 11
+- Legacy build: Windows 10 1511 build 10586+ 64-bit
 
 ### Python packages
 ```
-PySide6>=6.6.0
-python-mpv>=1.0.5
-Pillow                # only required by setup_libmpv.py
-py7zr                 # only required by setup_libmpv.py (auto-installed)
+pip install -r requirements-win10.txt
+pip install -r requirements-win1511.txt
 ```
 
 ---
@@ -80,6 +81,13 @@ python run.py
 > **Note:** `libs/libmpv-2.dll` is not in git (115 MB, over GitHub's
 > file-size limit). The `setup_libmpv.py` script downloads it from
 > the official SourceForge build.
+
+For Windows 10 1511 legacy builds:
+
+```powershell
+python setup_libmpv_win1511.py
+python build_exe_win1511.py
+```
 
 ### Open a file
 - Drag a video onto the window
@@ -131,6 +139,7 @@ Stella Video/
 │   ├── app.py                     QApplication + main()
 │   ├── main_window.py             QMainWindow, menus, layout
 │   ├── player.py                  libmpv wrapper with Qt signals
+│   ├── qt.py                      PySide6/PySide2 compatibility layer
 │   ├── video_widget.py            native widget hosting mpv output
 │   ├── video_stack.py             foreground video + backdrop stack
 │   ├── controls.py                seek bar, play controls, volume
@@ -145,9 +154,13 @@ Stella Video/
 │   ├── utils.py                   time format, file filters
 │   └── __init__.py
 ├── requirements.txt
+├── requirements-win10.txt
+├── requirements-win1511.txt
 ├── run.py                         entry point
 ├── setup_libmpv.py                auto-download libmpv-2.dll
-└── build_exe.py                   PyInstaller build script
+├── setup_libmpv_win1511.py        auto-download legacy mpv-1.dll
+├── build_exe.py                   PyInstaller modern build script
+└── build_exe_win1511.py           PyInstaller Windows 10 1511 legacy build script
 ```
 
 ---
@@ -161,7 +174,16 @@ python build_exe.py
 
 Output: `dist/Stella Video/Stella Video.exe` (along with required DLLs and assets).
 
-To distribute, zip the entire `dist/Stella Video/` folder. The user does **not** need Python or any DLL installed — but should still install **ffmpeg** separately for thumbnail previews to work.
+For Windows 10 1511:
+
+```powershell
+python setup_libmpv_win1511.py
+python build_exe_win1511.py
+```
+
+Output: `dist-win1511/Stella Video/Stella Video.exe`.
+
+To distribute, zip the entire `dist/Stella Video/` folder for modern Windows, or the entire `dist-win1511/Stella Video/` folder for Windows 10 1511. The user does **not** need Python or any DLL installed — but should still install **ffmpeg** separately for thumbnail previews to work.
 
 ---
 

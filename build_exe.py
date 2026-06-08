@@ -23,6 +23,7 @@ PKG = ROOT / "stella_video"
 ASSETS = PKG / "assets"
 LIBS = ROOT / "libs"
 DIST_NAME = "Stella Video"
+OBS_GUIDE = ROOT / "OBS_WEBSOCKET_GUIDE.txt"
 
 
 def generate_ico() -> Path:
@@ -148,6 +149,9 @@ def write_dist_helpers(dist_dir: Path) -> None:
     checker = dist_dir / "Cek Instalasi.bat"
     checker.write_text(CHECK_INSTALL_BAT, encoding="utf-8")
     print(f"[dist] wrote {checker.name}")
+    if OBS_GUIDE.is_file():
+        shutil.copy2(OBS_GUIDE, dist_dir / OBS_GUIDE.name)
+        print(f"[dist] copied {OBS_GUIDE.name}")
 
 
 def verify_qt_bundle(dist_dir: Path) -> None:

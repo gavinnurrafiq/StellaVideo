@@ -16,6 +16,7 @@ __pycache__/
 venv/
 .venv/
 .venv-win10/
+.venv-win1511/
 env/
 ENV/
 
@@ -23,7 +24,9 @@ ENV/
 # Build artefacts
 # =============================================================================
 build/
+build-win1511/
 dist/
+dist-win1511/
 *.spec
 *.spec.bak
 *.manifest
@@ -39,6 +42,8 @@ libs/*.dll
 libs/*.7z
 libs/_stage/
 libs/_libmpv_archive.7z
+libs/win1511/*.dll
+libs/win1511/*.7z
 
 # =============================================================================
 # Editor / IDE

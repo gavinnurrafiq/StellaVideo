@@ -9,12 +9,29 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt, QSettings, Signal
-from PySide6.QtGui import QColor, QFont
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QWidget, QTabWidget,
-    QLabel, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QFontComboBox,
-    QPushButton, QDialogButtonBox, QColorDialog, QGroupBox, QPlainTextEdit
+from .qt import (
+    QColor,
+    QColorDialog,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFont,
+    QFontComboBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QPlainTextEdit,
+    QPushButton,
+    QSettings,
+    QSpinBox,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    Signal,
 )
 
 

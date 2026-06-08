@@ -3,11 +3,32 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QSettings, QPoint, QEvent
-from PySide6.QtGui import QAction, QActionGroup, QKeySequence, QIcon, QGuiApplication, QCursor
-from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QDockWidget, QFileDialog, QMessageBox,
-    QLabel, QMenu, QApplication, QStatusBar, QMenuBar
+from .qt import (
+    QAction,
+    QActionGroup,
+    QApplication,
+    QCursor,
+    QDockWidget,
+    QEvent,
+    QFileDialog,
+    QGuiApplication,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
+    QPoint,
+    QSettings,
+    QStatusBar,
+    QKeySequence,
+    QTimer,
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    event_global_pos,
+    qt_exec,
 )
 
 from . import __app_name__
@@ -21,7 +42,7 @@ from .dialogs import VideoAdjustmentsDialog, SyncDialog, AboutDialog
 from .thumbnail import ThumbnailProvider, ThumbnailOverlay
 from .color_sampler import ColorSampler
 from .preferences import AppSettings, PreferencesDialog
-from .obs_integration import LiveStudioPanel
+from .obs_integration import LiveStudioPanel, show_obs_setup_help
 from .utils import (
     format_time, is_media, is_subtitle,
     media_file_filter, subtitle_file_filter,
@@ -463,16 +484,7 @@ class MainWindow(QMainWindow):
             self.dock_live.raise_()
 
     def _action_obs_help(self) -> None:
-        QMessageBox.information(
-            self,
-            "OBS Live Studio Setup",
-            "1. Open OBS Studio.\n"
-            "2. Go to Tools > WebSocket Server Settings.\n"
-            "3. Enable WebSocket server, keep port 4455, copy/set the password.\n"
-            "4. In OBS, add a Window Capture source and choose Stella Video.\n"
-            "5. Open Live > OBS Live Studio in Stella Video, connect, paste RTMP URL/key, then Start Live.\n\n"
-            "OBS streams to one destination at a time by default. For simultaneous Shopee, TikTok, YouTube, and Instagram, use an OBS Multi-RTMP plugin or a restream service."
-        )
+        show_obs_setup_help(self)
 
     # ============================================================
     # Recent files
@@ -545,7 +557,6 @@ class MainWindow(QMainWindow):
             first = False
 
     def _action_open_url(self) -> None:
-        from PySide6.QtWidgets import QInputDialog
         url, ok = QInputDialog.getText(self, "Open URL", "Stream URL:")
         if ok and url.strip():
             self._open_path(url.strip(), replace=True)
@@ -974,7 +985,7 @@ class MainWindow(QMainWindow):
             child.setMouseTracking(True)
 
     # Qt.Edge values reproduced as a plain int bitmask so we don't depend
-    # on PySide6's flag-type quirks across versions.
+    # on PySide flag-type quirks across versions.
     _EDGE_LEFT = 1     # Qt.LeftEdge
     _EDGE_RIGHT = 2    # Qt.RightEdge
     _EDGE_TOP = 4      # Qt.TopEdge
@@ -1017,7 +1028,7 @@ class MainWindow(QMainWindow):
         return None
 
     def _update_edge_cursor(self, event) -> None:
-        edges = self._edge_at(event.globalPosition().toPoint())
+        edges = self._edge_at(event_global_pos(event))
         cursor = self._cursor_for_edge(edges) if edges else None
         if cursor is not None:
             self.setCursor(cursor)
@@ -1041,7 +1052,7 @@ class MainWindow(QMainWindow):
         return result
 
     def _try_start_edge_resize(self, event) -> bool:
-        edges = self._edge_at(event.globalPosition().toPoint())
+        edges = self._edge_at(event_global_pos(event))
         if not edges:
             return False
         handle = self.windowHandle()
@@ -1199,7 +1210,7 @@ class MainWindow(QMainWindow):
         menu.addSeparator()
         menu.addAction("Fullscreen", self.toggle_fullscreen)
         menu.addAction("Playlist", self.toggle_playlist)
-        menu.exec(QCursor.pos())
+        qt_exec(menu, QCursor.pos())
 
     def _on_video_mouse_moved(self) -> None:
         # Any movement during playback resurrects the UI and resets the
@@ -1252,7 +1263,7 @@ class MainWindow(QMainWindow):
     def _action_open_preferences(self) -> None:
         dlg = PreferencesDialog(self._app_settings, self)
         dlg.settingsApplied.connect(self._on_settings_applied)
-        dlg.exec()
+        qt_exec(dlg)
 
     def _on_settings_applied(self) -> None:
         self._apply_settings_to_ui()
@@ -1346,7 +1357,7 @@ class MainWindow(QMainWindow):
             pass
 
     def _action_about(self) -> None:
-        AboutDialog(self).exec()
+        qt_exec(AboutDialog(self))
 
     def _action_show_shortcuts(self) -> None:
         text = (
@@ -1387,4 +1398,4 @@ class MainWindow(QMainWindow):
         box.setWindowTitle("Keyboard Shortcuts")
         box.setText(f"<pre>{text}</pre>")
         box.setTextFormat(Qt.RichText)
-        box.exec()
+        qt_exec(box)

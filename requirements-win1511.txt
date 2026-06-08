@@ -1,0 +1,6 @@
+PySide2==5.15.2
+shiboken2==5.15.2
+python-mpv==1.0.8
+Pillow>=9.5,<11
+pyinstaller==5.13.2
+websocket-client>=1.8,<2

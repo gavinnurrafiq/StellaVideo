@@ -12,11 +12,24 @@ from __future__ import annotations
 
 import math
 
-from PySide6.QtCore import Qt, Signal, QPoint, QTimer
-from PySide6.QtGui import (
-    QMouseEvent, QPainter, QColor, QLinearGradient, QFont, QPaintEvent
+from .qt import (
+    QColor,
+    QFont,
+    QHBoxLayout,
+    QLabel,
+    QLinearGradient,
+    QMouseEvent,
+    QPaintEvent,
+    QPainter,
+    QPoint,
+    QTimer,
+    QToolButton,
+    QWidget,
+    Qt,
+    Signal,
+    event_global_pos,
+    event_position_x,
 )
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QToolButton
 
 
 class CustomTitleBar(QWidget):
@@ -164,7 +177,7 @@ class CustomTitleBar(QWidget):
                     return
             self._drag_active = True
             self._drag_offset = (
-                e.globalPosition().toPoint()
+                event_global_pos(e)
                 - self.window().frameGeometry().topLeft()
             )
             e.accept()
@@ -174,17 +187,18 @@ class CustomTitleBar(QWidget):
             return
         window = self.window()
         if window.isMaximized():
-            ratio = e.position().x() / max(1, self.width())
+            global_pos = event_global_pos(e)
+            ratio = event_position_x(e) / max(1, self.width())
             window.showNormal()
             new_w = window.width()
-            x = e.globalPosition().toPoint().x() - int(ratio * new_w)
-            y = e.globalPosition().toPoint().y() - self.height() // 2
+            x = global_pos.x() - int(ratio * new_w)
+            y = global_pos.y() - self.height() // 2
             window.move(x, y)
             self._drag_offset = (
-                e.globalPosition().toPoint() - window.frameGeometry().topLeft()
+                event_global_pos(e) - window.frameGeometry().topLeft()
             )
             return
-        window.move(e.globalPosition().toPoint() - self._drag_offset)
+        window.move(event_global_pos(e) - self._drag_offset)
         e.accept()
 
     def mouseReleaseEvent(self, e: QMouseEvent) -> None:

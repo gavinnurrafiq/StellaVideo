@@ -1,9 +1,16 @@
 """Video output widget — gives libmpv a native window-id to render into."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QPalette, QColor, QMouseEvent, QDragEnterEvent, QDropEvent
-from PySide6.QtWidgets import QFrame
+from .qt import (
+    QColor,
+    QDragEnterEvent,
+    QDropEvent,
+    QFrame,
+    QMouseEvent,
+    QPalette,
+    Qt,
+    Signal,
+)
 
 
 class VideoFrame(QFrame):
