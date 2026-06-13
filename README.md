@@ -11,16 +11,16 @@ and OBS-based live streaming workflows.
 ## Download
 
 Latest release:
-[StellaVideo 1.6.0](https://github.com/gavinnurrafiq/Stella-Video/releases/tag/Release3)
+[Stella Video 1.7.0](https://github.com/gavinnurrafiq/Stella-Video/releases/tag/Release5)
 
 Recommended download:
-[StellaVideoSetup-1.6.0.exe](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release3/StellaVideoSetup-1.6.0.exe)
+[Stella.Video.1.7.0.Win10.1809-Plus.zip](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release5/Stella.Video.1.7.0.Win10.1809-Plus.zip)
 
-Portable download:
-[Stella.Video.1.6.0.zip](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release3/Stella.Video.1.6.0.zip)
+Windows 10 1511 legacy download:
+[Stella.Video.1.7.0.Win10.1511.Legacy.zip](https://github.com/gavinnurrafiq/Stella-Video/releases/download/Release5/Stella.Video.1.7.0.Win10.1511.Legacy.zip)
 
 Portable usage:
-1. Download `Stella.Video.1.6.0.zip`.
+1. Download the ZIP file for your Windows version.
 2. Extract the full folder.
 3. Open `Stella Video.exe`.
 
@@ -45,6 +45,11 @@ Python is not required when using the installer or portable ZIP.
 - Audio and video playback.
 - Frame-accurate seeking.
 - Seekbar preview thumbnails while scrubbing.
+- Resume playback per video.
+- Watch History dialog with progress and last-played time.
+- Remember per-video playback settings.
+- Smart playlist from the current folder using natural file order.
+- Mini Player Mode.
 - Play, pause, stop, volume, speed control, next, previous, and folder ordering.
 - A-B loop.
 - Chapter markers and navigation.
